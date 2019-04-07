@@ -25,7 +25,7 @@ u32 FindFunc(const char *modname, const char *lib, u32 nid)
 	int i = 0, u;
 	
 	/* try and find the module by name */
-	SceModule *mod = sceKernelFindModuleByName(modname);
+	SceModule2 *mod = (SceModule2 *)sceKernelFindModuleByName(modname);
 	
 	/* if fail */
 	if (!mod)

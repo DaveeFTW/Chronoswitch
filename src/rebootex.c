@@ -41,7 +41,7 @@ int (* sceReboot)(void *reboot_param, void *exec_param, int api, int initial_rnd
 int sceBootLfatOpenPatched(char *path)
 {
 	/* check the path for our virtual module */
-	if (strcmp(path, "/kd/strange.charm") == 0)
+	if (strcmp(path, "/chrono/strange.charm") == 0)
 	{
 		/* set seek to 0 and set to opened and return success */
 		g_module_seek = 0;
@@ -182,7 +182,7 @@ u32 sceKernelCheckPspConfigPatched(void *btcnf_data, u32 size, int flag)
 	if (header->signature == 0x0F803001)
 	{
 		/* insert the module path into the config */
-		InsertModuleBtcnf("/kd/strange.charm", "/kd/init.prx", btcnf_data, &nsize, (BOOTLOAD_VSH | BOOTLOAD_GAME | BOOTLOAD_POPS | BOOTLOAD_UPDATER | BOOTLOAD_UMDEMU | BOOTLOAD_MLNAPP));
+		InsertModuleBtcnf("/chrono/strange.charm", "/kd/init.prx", btcnf_data, &nsize, (BOOTLOAD_VSH | BOOTLOAD_GAME | BOOTLOAD_POPS | BOOTLOAD_UPDATER | BOOTLOAD_UMDEMU | BOOTLOAD_MLNAPP));
 	}
 	
 	/* return the new size */
@@ -236,6 +236,8 @@ int LoadCoreModuleStart631(int (* module_bootstart)(u32 argsize, void *argp), vo
 	/* patch calls to the unsigncheck routines */
 	MAKE_CALL(text_addr + 0x6954, VerifySigncheckPatched);
 	
+	KClearCaches();
+    
 	/* call the loadcore bootstart */
 	return module_bootstart(8, argp);
 }
@@ -255,6 +257,8 @@ int LoadCoreModuleStart635(int (* module_bootstart)(u32 argsize, void *argp), vo
 	/* patch calls to the unsigncheck routines */
 	MAKE_CALL(text_addr + 0x5CC8, VerifySigncheckPatched);
 	
+	KClearCaches();
+    
 	/* call the loadcore bootstart */
 	return module_bootstart(8, argp);
 }
@@ -274,6 +278,8 @@ int LoadCoreModuleStart638(int (* module_bootstart)(u32 argsize, void *argp), vo
 	/* patch calls to the unsigncheck routines */
 	MAKE_CALL(text_addr + 0x5CC8, VerifySigncheckPatched);
 	
+	KClearCaches();
+    
 	/* call the loadcore bootstart */
 	return module_bootstart(8, argp);
 }
@@ -293,6 +299,7 @@ int LoadCoreModuleStart660(int (* module_bootstart)(u32 argsize, void *argp), vo
 	/* patch calls to the unsigncheck routines */
 	MAKE_CALL(text_addr + 0x5994, VerifySigncheckPatched);
 	
+	KClearCaches();
 	/* call the loadcore bootstart */
 	return module_bootstart(8, argp);
 }
@@ -679,7 +686,7 @@ int RebootEntryPatched(void *reboot_param, void *exec_param, u32 api, u32 initia
 		}
 	}
 	
-	else if (g_devkit_version == FIRMWARE_VERSION_660)
+	else if ((g_devkit_version == FIRMWARE_VERSION_660) || (g_devkit_version == FIRMWARE_VERSION_661))
 	{
 		/* lets fixup our executable */
 		_sw(TAG_660, (u32)downgrade660_ctrl + 0xD0);
@@ -692,9 +699,15 @@ int RebootEntryPatched(void *reboot_param, void *exec_param, u32 api, u32 initia
 			{
 
 				/* link our function pointers */
-				sceBootLfatOpen = (void *)0x8860822C;
-				sceBootLfatRead = (void *)0x886083A0;
-				sceBootLfatClose = (void *)0x88608344;
+				if (g_devkit_version == FIRMWARE_VERSION_660) {
+					sceBootLfatOpen = (void *)0x8860822C;
+					sceBootLfatRead = (void *)0x886083A0;
+					sceBootLfatClose = (void *)0x88608344;
+				} else if (g_devkit_version == FIRMWARE_VERSION_661) {
+					sceBootLfatOpen = (void *)0x8860B6C0;
+					sceBootLfatRead = (void *)0x8860AD58;
+					sceBootLfatClose = (void *)0x88609C78;
+				}
 				
 				/* lets patch the IO drivers */
 				MAKE_CALL(0x886027C4, sceBootLfatOpenPatched);
@@ -732,11 +745,18 @@ int RebootEntryPatched(void *reboot_param, void *exec_param, u32 api, u32 initia
 			case 2:
 			case 3:
 			case 4:
+			case 10:
 			{
 				/* link our function pointers */
-				sceBootLfatOpen = (void *)0x886082EC;
-				sceBootLfatRead = (void *)0x88608460;
-				sceBootLfatClose = (void *)0x88608404;
+				if (g_devkit_version == FIRMWARE_VERSION_660) {
+					sceBootLfatOpen = (void *)0x886082EC;
+					sceBootLfatRead = (void *)0x88608460;
+					sceBootLfatClose = (void *)0x88608404;
+				} else if (g_devkit_version == FIRMWARE_VERSION_661) {
+					sceBootLfatOpen = (void *)0x8860B780;
+					sceBootLfatRead = (void *)0x8860AE18;
+					sceBootLfatClose = (void *)0x88609D38;
+				}
 				
 				/* lets patch the IO drivers */
 				MAKE_CALL(0x8860288C, sceBootLfatOpenPatched);

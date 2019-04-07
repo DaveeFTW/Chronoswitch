@@ -8,6 +8,7 @@
 #define __KERNEL_LAND_H__
 
 #include <psploadexec_kernel.h>
+#include "include/systemctrl.h"
 
 int getModel(void);
 u32 getBaryon(void);
@@ -16,7 +17,7 @@ int delete_resume_game(void);
 
 extern int (* pspKernelGetModel)(void);
 extern int (* pspSysconGetBaryonVersion)(u32 *baryon);
-extern SceModule *(* pspKernelFindModuleByName)(const char *name);
+extern SceModule2 *(* pspKernelFindModuleByName)(const char *name);
 extern int (* pspKernelLoadExecVSHEf1)(const char *path, struct SceKernelLoadExecVSHParam *param);
 extern int (* pspKernelLoadExecVSHMs1)(const char *path, struct SceKernelLoadExecVSHParam *param);
 extern SceUID (* pspIoOpen)(char *file, int flags, SceMode mode);

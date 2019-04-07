@@ -97,6 +97,21 @@ PatchTable g_patch_table[] =
 		{ 0x5970, 0x5994 }, //memlmd calls
 		{ 0x783C, 0x7824 }, //memlmd stubs
 	},
+
+	{
+		FIRMWARE_VERSION_661,
+		{ 0x0B24, 0x0B24, 0x0B24, 0x0B24, 0x0B24, },
+		
+		/* for 05g mesgled */
+		0x5B84, //mesgled updater decrypt call
+		0x78AC, //mesgled updater decrypt func
+		
+		0x8124, //prologue func
+		0x7048, //prologue call
+		
+		{ 0x5970, 0x5994 }, //memlmd calls
+		{ 0x783C, 0x7824 }, //memlmd stubs
+	},
 };
 
 #define PATCH_TABLE_ADDR_START	(0x88FC0000)

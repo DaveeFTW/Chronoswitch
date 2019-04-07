@@ -4,7 +4,7 @@ release: all
 	bin2c $(TARGET).prx ../$(TARGET).h $(TARGET)
 	
 TARGET = downgrade_ctrl
-OBJS = main.o utils.o patch_table.o decrypt.o pspdecrypt.o extra_stubs.o
+OBJS = main.o utils.o patch_table.o decrypt.o pspdecrypt.o extra_stubs.o ../libasm/libinfinityKernel.o
 
 INCDIR = ../include
 CFLAGS = -Os -G0 -Wall -fno-pic -fshort-wchar

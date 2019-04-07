@@ -15,6 +15,8 @@
 #include "utils.h"
 #include "kernel_land.h"
 
+void sceKernelIcacheInvalidateAll(void);
+
 int isValidUserAddress(void *addr)
 {
 	return ((u32)((u32)addr - 0x08800000) < (24 << 20)) ? (1) : (0);
@@ -51,7 +53,7 @@ u32 FindProc(char *modname, char *lib, u32 nid)
 	int i = 0, u;
 	
 	/* find the module */
-	SceModule *mod = pspKernelFindModuleByName(modname);
+	SceModule2 *mod = pspKernelFindModuleByName(modname);
 	
 	/* if no mod, error */
 	if (mod == NULL)

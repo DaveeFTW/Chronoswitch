@@ -18,3 +18,7 @@
 	STUB_START	"sceIdStorage_driver",0x00090011,0x00010005
 	STUB_FUNC	0x6FE062D1,sceIdStorageLookup
 	STUB_END
+
+	STUB_START	"LoadCoreForKernel",0x00090011,0x00010005
+	STUB_FUNC	0xBC99C625,_sceKernelFindModuleByAddress
+	STUB_END

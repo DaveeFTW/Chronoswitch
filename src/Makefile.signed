@@ -6,7 +6,7 @@ release: all
 	rm -f downgrade660_ctrl.h
 
 TARGET = downgrader
-OBJS = main.o kernel_exploit.o kernel_land.o rebootex.o utils.o extras.o extra_stubs.o
+OBJS = main.o kernel_exploit.o kernel_land.o rebootex.o utils.o extras.o extra_stubs.o libasm/libinfinityUser.o
 
 INCDIR = ../include
 CFLAGS = -Os -G0 -Wall

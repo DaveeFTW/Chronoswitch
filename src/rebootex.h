@@ -56,15 +56,4 @@ typedef struct ModuleEntry
 	u8  hash[0x10]; // 16
 } __attribute__((packed)) ModuleEntry; // 32
 
-enum BootLoadFlags
-{
-	BOOTLOAD_VSH = 1,
-	BOOTLOAD_GAME = 2,
-	BOOTLOAD_UPDATER = 4,
-	BOOTLOAD_POPS = 8,
-	BOOTLOAD_UNK = 32,
-	BOOTLOAD_UMDEMU = 64, /* for original NP9660 */
-	BOOTLOAD_MLNAPP = 128,
-};
-
 #endif /* __REBOOTEX_H__ */

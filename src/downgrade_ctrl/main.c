@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <systemctrl.h>
+#include <libinfinity.h>
 
 #include "utils.h"
 #include "patch_table.h"
@@ -234,6 +235,16 @@ int sceUtilsBufferCopyWithRangePatched(void *dst, u32 dst_size, void *src, u32 s
 	return pspUtilsBufferCopyWithRange(dst, dst_size, src, src_size, cmd);
 }
 
+int (* sceLflashFatfmtStartFatfmtOriginal)(int argc, char *argv[]) = NULL;
+
+int sceLflashFatfmtStartFatfmtPatched(int argc, char *argv[])
+{
+    infSetRedirectionStatus(0);
+    ClearCaches();
+    
+    return sceLflashFatfmtStartFatfmtOriginal(argc, argv);
+}
+
 int OnModuleStart(SceModule *mod)
 {
 	if (strcmp(mod->modname, "sceMesgLed") == 0)
@@ -241,6 +252,13 @@ int OnModuleStart(SceModule *mod)
 		PatchMesgled(mod->text_addr);
 		ClearCaches();
 	}
+    
+    else if (strcmp(mod->modname, "sceLflashFatfmtUpdater") == 0)
+    {
+        PatchSyscall(FindFunc("sceLflashFatfmtUpdater", "LflashFatfmt", 0xB7A424A4), sceLflashFatfmtStartFatfmtPatched);
+        sceLflashFatfmtStartFatfmtOriginal = FindFunc("sceLflashFatfmtUpdater", "LflashFatfmt", 0xB7A424A4);
+        ClearCaches();
+    }
 	
 	else if (strcmp(mod->modname, "updater") == 0)
 	{
@@ -280,7 +298,7 @@ int OnModuleStart(SceModule *mod)
 	
 	/* if there is a previous handler, call it */
 	if (previous)
-		return previous(mod);
+		return previous((SceModule2 *)mod);
 	
 	/* else just return 0 */
 	return 0;
@@ -350,7 +368,7 @@ int module_start(SceSize argsize, void *argp)
 		}
 		
 		/* register with sctrl */
-		previous = sctrlHENSetStartModuleHandler(OnModuleStart);
+		previous = sctrlHENSetStartModuleHandler((STMOD_HANDLER)OnModuleStart);
 	}
 	else
 	{

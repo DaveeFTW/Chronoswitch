@@ -7,6 +7,11 @@
 #ifndef __UTILS__H__
 #define __UTILS__H__
 
+#define U_EXTRACT_IMPORT(x) ((((u32)_lw((u32)x)) & ~0x08000000) << 2)
+#define K_EXTRACT_IMPORT(x) (((((u32)_lw((u32)x)) & ~0x08000000) << 2) | 0x80000000)
+#define U_EXTRACT_CALL(x) ((((u32)_lw((u32)x)) & ~0x0C000000) << 2)
+#define K_EXTRACT_CALL(x) (((((u32)_lw((u32)x)) & ~0x0C000000) << 2) | 0x80000000)
+
 #define MAKE_JUMP(a, f)					_sw(0x08000000 | (((u32)(f) >> 2)  & 0x03ffffff), a)
 #define MAKE_CALL(a, f)					_sw(0x0C000000 | (((u32)(f) >> 2)  & 0x03ffffff), a)
 #define REDIRECT_FUNCTION(a, f) 		{ u32 address = a; _sw(0x08000000 | (((u32)(f) >> 2)  & 0x03ffffff), address);  _sw(0, address+4); }
