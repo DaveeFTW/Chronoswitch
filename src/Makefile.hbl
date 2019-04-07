@@ -1,0 +1,21 @@
+TARGET = downgrader
+OBJS = main.o kernel_exploit.o kernel_land.o rebootex.o utils.o extras.o extra_stubs.o
+
+INCDIR = ../include
+CFLAGS = -Os -G0 -Wall -DHBL_SUKKIRI
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS = $(CFLAGS) -c
+ 
+LIBDIR = ../lib
+LIBS = -lpsppower
+
+PSP_FW_VERSION = 271
+
+EXTRA_TARGETS = EBOOT.PBP
+PSP_EBOOT_TITLE = 6.35 Downgrader
+
+BUILD_PRX = 1
+
+PSPSDK=$(shell psp-config --pspsdk-path)
+include $(PSPSDK)/lib/build.mak
+

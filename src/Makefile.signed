@@ -1,0 +1,28 @@
+release: all
+	bin/prxEncrypter $(TARGET).prx
+	pack-pbp $(EXTRA_TARGETS) PARAM.SFO icon0.png NULL NULL NULL NULL data.psp NULL
+	rm -f data.psp
+	rm -f downgrade_ctrl.h
+	rm -f downgrade660_ctrl.h
+
+TARGET = downgrader
+OBJS = main.o kernel_exploit.o kernel_land.o rebootex.o utils.o extras.o extra_stubs.o
+
+INCDIR = ../include
+CFLAGS = -Os -G0 -Wall
+CXXFLAGS = $(CFLAGS) -fno-exceptions -fno-rtti
+ASFLAGS = $(CFLAGS) -c
+ 
+LIBDIR = ../lib
+LIBS = -lpsppower
+
+PSP_FW_VERSION = 271
+
+EXTRA_TARGETS = EBOOT.PBP
+PSP_EBOOT_TITLE = Chronoswitch Downgrader
+
+BUILD_PRX = 1
+
+PSPSDK=$(shell psp-config --pspsdk-path)
+include $(PSPSDK)/lib/build.mak
+
