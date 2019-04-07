@@ -3,7 +3,9 @@ Chronoswitch is a downgrader for the Playstation Portable (PSP).
 
 ## Installation
 Download and extract the latest version from the releases on this github page. Copy the `PSP` folder from the extracted output to your memory stick. You will need the firmware update for version you wish to downgrade to. If you want to downgrade to 6.20, you will need the 6.20 official update. If you're downgrading a PSPgo, make sure you download the official firmware appropriate for that device.
+
 Copy the official firmware update to `PSP/GAME/UPDATE/EBOOT.PBP` on your memory stick. If you're using a PSPgo, make sure this copied to the internal storage instead.
+
 The downgrader is "signed", and can be launched without having a custom firmware installed. Once you run the application, follow the on-screen instructions.
 
 ## Changelog
