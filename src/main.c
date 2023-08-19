@@ -224,7 +224,7 @@ int main(int argc, char *argv[])
     sceKernelDelayThread(5*1000*1000);
     
     /* check for 09g, we treat this as a 04g */
-    if(model == 8)
+    if(model == 8 || model == 6) //also treat 07g as a 04g
     {
         model = 3;
     }
@@ -233,7 +233,7 @@ int main(int argc, char *argv[])
     if (model != 0 &&            /* PSP PHAT */
         model != 1 &&            /* PSP SLIM */
         model != 2 &&            /* PSP 3000 */
-        model != 3 &&            /* PSP 4000 */
+        model != 3 &&            /* PSP 4000/7000/9000 */
         model != 4 &&            /* PSPgo */
         model != 10            /* PSP E-1000 (Street) */
     )
