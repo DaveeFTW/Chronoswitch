@@ -28,7 +28,7 @@ PSP_MODULE_INFO("Chronoswitch", 0, 1, 1);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(3 << 10);
 
-#define DOWNGRADER_VER    ("7.0")
+#define DOWNGRADER_VER    ("7.1")
 
 typedef struct __attribute__((packed))
 {
@@ -211,6 +211,33 @@ int main(int argc, char *argv[])
     
     /* display model */
     printf("Your PSP reports model %02ig.\n", model+1);
+
+	/*extra disclaimer for 07g devices, as support for them has been barely tested
+	  theoretically they should be fully supported for fws 6.30 to 6.6x*/
+	if (model == 6)
+    {
+        printf("\n" "Your PSP reports model %02ig and reflashing is slightly more risky.\n", model+1);
+		printf("Proceed? (X = Yes, R = No)\n");
+        while (1)
+        {
+            sceCtrlPeekBufferPositive(&pad_data, 1);
+            
+            /* filter out previous buttons */
+            cur_buttons = pad_data.Buttons & ~prev_buttons;
+            prev_buttons = pad_data.Buttons;
+            
+            /* check for cross */
+            if (cur_buttons & PSP_CTRL_CROSS)
+            {
+                break;
+            }
+            
+            else if (cur_buttons & PSP_CTRL_RTRIGGER)
+            {
+                ErrorExit(5000, "Exiting in 5 seconds.\n");
+            }
+        }
+    }
     
     /* check if real != true */
     if (true_model != model)
@@ -223,8 +250,8 @@ int main(int argc, char *argv[])
     /* delay the thread */
     sceKernelDelayThread(5*1000*1000);
     
-    /* check for 09g, we treat this as a 04g */
-    if(model == 8 || model == 6) //also treat 07g as a 04g
+    /* check for 09g or 07g, we treat this as a 04g */
+    if(model == 8 || model == 6)
     {
         model = 3;
     }
