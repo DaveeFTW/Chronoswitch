@@ -211,7 +211,8 @@ int main(int argc, char *argv[])
     
     /* display model */
     printf("Your PSP reports model %02ig.\n", model+1);
-
+	/* delay the thread */
+    sceKernelDelayThread(1 * 1000 * 1000);
 	/*extra disclaimer for 07g devices, as support for them has been barely tested
 	  theoretically they should be fully supported for fws 6.30 to 6.6x*/
 	if (model == 6)
@@ -248,7 +249,7 @@ int main(int argc, char *argv[])
     }
     
     /* delay the thread */
-    sceKernelDelayThread(5*1000*1000);
+    sceKernelDelayThread(4*1000*1000);
     
     /* check for 09g or 07g, we treat this as a 04g */
     if(model == 8 || model == 6)
