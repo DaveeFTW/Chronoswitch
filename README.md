@@ -28,6 +28,7 @@ The downgrader is "signed", and can be launched without having a custom firmware
 * Silverspring
 * Bubbletune
 * qwikrazor87
+* The Zett
 
 ## Socials
 Follow me on Twitter [@DaveeFTW](https://twitter.com/DaveeFTW), and check out [my blog](https://lolhax.org).
