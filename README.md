@@ -10,7 +10,7 @@ The downgrader is "signed", and can be launched without having a custom firmware
 
 ## Changelog
 ### Version 7.1
-* Added experimental support for 07g units.
+* Added experimental support for 07g units on 6.6x.
 ### Version 7.0
 * Added support for Infinity.
 ### Version 6.1
