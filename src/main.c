@@ -211,6 +211,16 @@ int main(int argc, char *argv[])
     
     /* display model */
     printf("Your PSP reports model %02ig.\n", model+1);
+
+    
+    /* check if real != true */
+    if (true_model != model)
+    {
+        /* display */
+        printf("Your PSP is originally a %02ig model.\n", true_model + 1);
+        ErrorExit(10000, "Due to the experimental nature of the whole 09g to 04g downgrade, functionality to change firmware is prohibited through this program.");
+    }
+	
 	/* delay the thread */
     sceKernelDelayThread(1 * 1000 * 1000);
 	/*extra disclaimer for 07g devices, as support for them has been barely tested
@@ -238,15 +248,7 @@ int main(int argc, char *argv[])
                 ErrorExit(5000, "Exiting in 5 seconds.\n");
             }
         }
-    }
-    
-    /* check if real != true */
-    if (true_model != model)
-    {
-        /* display */
-        printf("Your PSP is originally a %02ig model.\n", true_model + 1);
-        ErrorExit(10000, "Due to the experimental nature of the whole 09g to 04g downgrade, functionality to change firmware is prohibited through this program.");
-    }
+    }	
     
     /* delay the thread */
     sceKernelDelayThread(4*1000*1000);
@@ -263,7 +265,7 @@ int main(int argc, char *argv[])
         model != 2 &&            /* PSP 3000 */
         model != 3 &&            /* PSP 4000/7000/9000 */
         model != 4 &&            /* PSP Go */
-        model != 10            /* PSP E1000 (Street) */
+        model != 10              /* PSP E1000 (Street) */
     )
     {
         /* unsupported */
