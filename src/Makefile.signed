@@ -19,7 +19,7 @@ LIBS = -lpsppower
 PSP_FW_VERSION = 271
 
 EXTRA_TARGETS = EBOOT.PBP
-PSP_EBOOT_TITLE = Chronoswitch Downgrader v7.1
+PSP_EBOOT_TITLE = Chronoswitch Downgrader v7.2
 
 BUILD_PRX = 1
 
