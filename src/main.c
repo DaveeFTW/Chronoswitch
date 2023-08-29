@@ -28,7 +28,7 @@ PSP_MODULE_INFO("Chronoswitch", 0, 1, 1);
 PSP_MAIN_THREAD_ATTR(PSP_THREAD_ATTR_VFPU);
 PSP_HEAP_SIZE_KB(3 << 10);
 
-#define DOWNGRADER_VER    ("7.1")
+#define DOWNGRADER_VER    ("7.2")
 
 typedef struct __attribute__((packed))
 {
@@ -182,12 +182,12 @@ int main(int argc, char *argv[])
     /* get the PSP model */
     int model = execKernelFunction(getModel);
     int true_model = model;
+    /* get the baryon */
+    u32 baryon = execKernelFunction(getBaryon);
     
     /* check for real model if it claims it is a 04g (can be 09g) */
     if (model == 3)
     {
-        /* get the baryon */
-        u32 baryon = execKernelFunction(getBaryon);
         
         /* now get the determinating model */
         u32 det_model = (baryon >> 16) & 0xFF;
@@ -211,21 +211,21 @@ int main(int argc, char *argv[])
     
     /* display model */
     printf("Your PSP reports model %02ig.\n", model+1);
-
+	
     
     /* check if real != true */
     if (true_model != model)
     {
         /* display */
         printf("Your PSP is originally a %02ig model.\n", true_model + 1);
-        ErrorExit(10000, "Due to the experimental nature of the whole 09g to 04g downgrade, functionality to change firmware is prohibited through this program.");
+        ErrorExit(10000, "Due to the experimental nature of the whole 09g to 04g downgrade, functionality to change firmware is prohibited through this program.");		
     }
 	
 	/* delay the thread */
-    sceKernelDelayThread(1 * 1000 * 1000);
-	/*extra disclaimer for 07g devices, as support for them has been barely tested
-	  theoretically they should be fully supported for fws 6.30 to 6.6x*/
-	if (model == 6)
+    sceKernelDelayThread(1 *1000*1000);
+	/* extra disclaimer for 07g devices, as support for them has been barely tested
+	   theoretically they should be fully supported for fws 6.30 to 6.6x */
+	if (baryon == 0x012E4000)
     {
         printf("\n" "Your PSP reports model %02ig and reflashing is slightly more risky.\n", model+1);
 		printf("Proceed? (X = Yes, R = No)\n");
@@ -252,6 +252,110 @@ int main(int argc, char *argv[])
     
     /* delay the thread */
     sceKernelDelayThread(4*1000*1000);
+
+    /* get the updater version */
+    u32 upd_ver = get_updater_version(model == 4);
+
+	/* make sure that we are not attempting to downgrade a PSP below its firmware boundaries */
+    if ((baryon == 0x00403000) && (upd_ver < 0x660)) {
+        printf("This app does not support downgrading a PSP 11g below 6.60.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }
+	/* downgrading a 09g to fw 6.20 is an exception, otherwise would be <0x630 */
+	else if ((baryon == 0x002E4000) && (upd_ver < 0x620)) {
+        printf("This app does not support downgrading a PSP 09g below 6.20.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }	
+	else if ((baryon == 0x012E4000) && (upd_ver < 0x630)) {
+        printf("This app does not support downgrading a PSP 07g below 6.30.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }	/* baryon check for TA-091/093; model check is done for the rare PSPgo TA-094 board (its baryon value is unknown) */
+	else if (((baryon == 0x00304000) || (baryon == 0x002C4000) || (model == 4)) && (upd_ver < 0x570)) {
+        printf("This app does not support downgrading a PSP 04g or 05g below 5.70.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }
+	else if (((baryon == 0x00285000) || (baryon == 0x00263100)) && (upd_ver < 0x420)) {
+        printf("This app does not support downgrading a PSP 03g below 4.20.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }
+	else if (((baryon == 0x00243000) || (baryon == 0x00234000) || (baryon == 0x0022B200)) && (upd_ver < 0x360)) {
+        printf("This app does not support downgrading a PSP 02g below 3.60.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }
+	else if (((baryon == 0x00121000) || (baryon == 0x00114000)) && (upd_ver < 0x200)) {
+        printf("This app does not support downgrading a TA-082/086 PSP 01g below 2.00.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }
+
+	/* DOESNT FULLY WORK YET */
+	/* ok, now get the idstorage value */
+	u8 device_fw_ver[4];
+	int res2 = 0; //sceIdStorageLookup(0x51, 0, device_fw_ver, 4);	//correct function, but crashes the Homebrew
+	u32 min_ver = 0;
+		
+	/* check for error */
+	if (res2 < 0)
+	{	
+		/* if the factory fw is unknown, set min_ver to 1.00 instead
+		   this is normal on 01g, but usually an IDStorage issue on 02g+ devices */
+		min_ver = 0x100;
+	}
+	else
+	{
+		/* convert to hex */
+		min_ver = (((device_fw_ver[0] - '0') & 0xF) << 8) | (((device_fw_ver[2] - '0') & 0xF) << 4) | (((device_fw_ver[3] - '0') & 0xF) << 0);
+	}
+	
+	if (upd_ver < min_ver)
+	{
+        printf("\n" "The target firmware %x.%x is lower than your factory firmware %x.%x", (upd_ver >> 8) & 0xF, upd_ver & 0xFF, (min_ver >> 8) & 0xF, min_ver & 0xFF);
+		printf("\n" "and reflashing is slightly more risky. Proceed? (X = Yes, R = No)\n");
+        while (1)
+        {
+            sceCtrlPeekBufferPositive(&pad_data, 1);
+            
+            /* filter out previous buttons  */
+            cur_buttons = pad_data.Buttons & ~prev_buttons;
+            prev_buttons = pad_data.Buttons;
+            
+            /* check for cross */
+            if (cur_buttons & PSP_CTRL_CROSS)
+            {
+                break;
+            }
+            
+            else if (cur_buttons & PSP_CTRL_RTRIGGER)
+            {
+                ErrorExit(5000, "Exiting in 5 seconds.\n");
+            }
+        }
+	}
+		
+	if (min_ver == 0x100 && model != 0)
+	{
+        printf("\n" "Your PSP's factory firmware is unknown and the target firmware %x.%x", (upd_ver >> 8) & 0xF, upd_ver & 0xFF);
+		printf("\n" "might be lower than it, therefore reflashing is slightly more risky.Proceed? (X = Yes, R = No)\n");
+        while (1)
+        {
+            sceCtrlPeekBufferPositive(&pad_data, 1);
+            
+            /* filter out previous buttons */
+            cur_buttons = pad_data.Buttons & ~prev_buttons;
+            prev_buttons = pad_data.Buttons;
+            
+            /* check for cross */
+            if (cur_buttons & PSP_CTRL_CROSS)
+            {
+                break;
+            }
+            
+            else if (cur_buttons & PSP_CTRL_RTRIGGER)
+            {
+                ErrorExit(5000, "Exiting in 5 seconds.\n");
+            }
+        }		
+	}
+	
     
     /* check for 09g or 07g, we treat this as a 04g */
     if(model == 8 || model == 6)
@@ -332,16 +436,8 @@ int main(int argc, char *argv[])
         }
     }
     
-    /* get the updater version */
-    u32 upd_ver = get_updater_version(model == 4);
-
-    if ((model == 10) && (upd_ver < 0x660)) {
-        printf("This app does not support downgrading a PSP 11g below 6.60.\n");
-        ErrorExit(5000, "Exiting in 5 seconds.\n");
-    }
-    
     /* do confirmation stuff */
-    printf("Will attempt to Downgrade: %X.%X -> %X.%X.\n", (g_devkit_version >> 24) & 0xF, ((g_devkit_version >> 12) & 0xF0) | ((g_devkit_version >> 8) & 0xF), (upd_ver >> 8) & 0xF, upd_ver & 0xFF);
+    printf("\n" "Will attempt to Downgrade: %X.%X -> %X.%X.\n", (g_devkit_version >> 24) & 0xF, ((g_devkit_version >> 12) & 0xF0) | ((g_devkit_version >> 8) & 0xF), (upd_ver >> 8) & 0xF, upd_ver & 0xFF);
     printf("X to continue, R to exit.\n");
     
     /* get button */
@@ -391,7 +487,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    printf("OK, good for launch\n");
+    printf("OK, good for launch!\n");
     
     /* go go go go go */
     res = execKernelFunction(launch_updater);
