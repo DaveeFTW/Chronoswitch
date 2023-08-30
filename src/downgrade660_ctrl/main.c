@@ -125,15 +125,8 @@ int ApplyFirmware(SceModule2 *mod)
 	
 	/* check for error */
 	if (res < 0)
-	{
-		/* check model */
-		if (sceKernelGetModel() != 0)
-		{
-			/* invalid error */
-			return -4;
-		}
-		
-		/* firmware 1.00 */
+	{		
+		/* set minimum firmware to 1.00, if unknown */
 		min_ver = 0x100;
 	}
 	else
