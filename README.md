@@ -9,6 +9,9 @@ Copy the official firmware update to `PSP/GAME/UPDATE/EBOOT.PBP` on your memory 
 The downgrader is "signed", and can be launched without having a custom firmware installed. Once you run the application, follow the on-screen instructions.
 
 ## Changelog
+### Version 7.2
+* Removed 'factory firmware limitation', which prevented certain PSPs from being downgradable at all or limited them from being downgraded to certain firmwares they theoretically support.
+* Chronoswitch now detects your PSP's motherboard alongside its model and allows flashing all firmwares (5.00+) that are supported by it.
 ### Version 7.1
 * Added experimental support for 07g units on 6.6x.
 ### Version 7.0

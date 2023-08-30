@@ -125,40 +125,25 @@ int ApplyFirmware(void)
 	
 	/* check for error */
 	if (res < 0)
-	{
-		/* check model */
-		if (sceKernelGetModel() != 0)
-		{
-			/* invalid error */
-			return -4;
-		}
-		
-		/* firmware 1.00 */
+	{		
+		/* set minimum firmware to 1.00, if unknown */
 		min_ver = 0x100;
 	}
 	else
 	{
 		/* convert to hex */
-		min_ver = (((device_fw_ver[0] - '0') & 0xF) << 8) | (((device_fw_ver[2] - '0') & 0xF) << 4) | (((device_fw_ver[3] - '0') & 0xF) << 0);
+		min_ver = (((device_fw_ver[0] - '0') & 0xF) << 8) | (((device_fw_ver[2] - '0') & 0xF) << 4) | (((device_fw_ver[3] - '0') & 0xF) << 0);		
 	}
 	
 	/* set the result to 0 */
 	res = 0;
 	
-	/* check if the updater is less than the minimum version */
-	if (updater_ver < min_ver)
-	{
-		/* ok, check for 6.35 and 09g */
-		if ((min_ver != 0x630 && min_ver != 0x635) || sceKernelGetModel() != 8)
-		{
-			/* error */
-			pspSdkSetK1(k1);
-			return -5;
-		}
-		
+	/* check if the updater is 620 and the model is 09g */
+	if (updater_ver == 0x620 && sceKernelGetModel() == 8)
+	{		
 		/* set result to 1 D: */
 		res = 1;
-	}
+	}	
 
 	/* do spoof! */
 	g_spoof_ver = updater_ver;
@@ -268,7 +253,7 @@ int OnModuleStart(SceModule *mod)
 		/* check for success */
 		if (res >= 0)
 		{
-			/* do these patches if we have 09g going to 6.XX */
+			/* do these patches if we have 09g going to <6.3X */
 			if (res == 1)
 			{
 				/* patch the IO */
