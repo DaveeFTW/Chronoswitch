@@ -257,23 +257,27 @@ int main(int argc, char *argv[])
     u32 upd_ver = get_updater_version(model == 4);
 
 	/* make sure that we are not attempting to downgrade a PSP below its firmware boundaries */
+	
     if ((baryon == 0x00403000) && (upd_ver < 0x660)) {
         printf("This app does not support downgrading a PSP 11g below 6.60.\n");
         ErrorExit(5000, "Exiting in 5 seconds.\n");
-    }
-	/* downgrading a 09g to fw 6.20 is an exception, otherwise would be <0x630 */
-	else if ((baryon == 0x002E4000) && (upd_ver < 0x620)) {
-        printf("This app does not support downgrading a PSP 09g below 6.20.\n");
+    } /* Disabled functionality to downgrade 09g to 6.20, otherwise would be <0x620 */
+	else if ((baryon == 0x002E4000) && (upd_ver < 0x630)) {
+        printf("This app does not support downgrading a PSP 09g below 6.30.\n");
         ErrorExit(5000, "Exiting in 5 seconds.\n");
-    }	
+    }
 	else if ((baryon == 0x012E4000) && (upd_ver < 0x630)) {
         printf("This app does not support downgrading a PSP 07g below 6.30.\n");
         ErrorExit(5000, "Exiting in 5 seconds.\n");
-    }	/* baryon check for TA-091/093; model check is done for the rare PSPgo TA-094 board (its baryon value is unknown) */
-	else if (((baryon == 0x00304000) || (baryon == 0x002C4000) || (model == 4)) && (upd_ver < 0x570)) {
-        printf("This app does not support downgrading a PSP 04g or 05g below 5.70.\n");
+    }	/* baryon check for TA-091, model check is done for the rare PSPgo TA-094 board (its baryon value is unknown) */
+	else if (((baryon == 0x00304000) || (model == 4)) && (upd_ver < 0x570)) {
+        printf("This app does not support downgrading a PSP 05g below 5.70.\n");
         ErrorExit(5000, "Exiting in 5 seconds.\n");
     }
+	else if ((baryon == 0x002C4000) && (upd_ver < 0x570)) {
+        printf("This app does not support downgrading a PSP 04g below 5.70.\n");
+        ErrorExit(5000, "Exiting in 5 seconds.\n");
+    }	
 	else if (((baryon == 0x00285000) || (baryon == 0x00263100)) && (upd_ver < 0x420)) {
         printf("This app does not support downgrading a PSP 03g below 4.20.\n");
         ErrorExit(5000, "Exiting in 5 seconds.\n");
@@ -286,75 +290,6 @@ int main(int argc, char *argv[])
         printf("This app does not support downgrading a TA-082/086 PSP 01g below 2.00.\n");
         ErrorExit(5000, "Exiting in 5 seconds.\n");
     }
-
-	/* DOESNT FULLY WORK YET */
-	/* ok, now get the idstorage value */
-	u8 device_fw_ver[4];
-	int res2 = 0; //sceIdStorageLookup(0x51, 0, device_fw_ver, 4);	//correct function, but crashes the Homebrew
-	u32 min_ver = 0;
-		
-	/* check for error */
-	if (res2 < 0)
-	{	
-		/* if the factory fw is unknown, set min_ver to 1.00 instead
-		   this is normal on 01g, but usually an IDStorage issue on 02g+ devices */
-		min_ver = 0x100;
-	}
-	else
-	{
-		/* convert to hex */
-		min_ver = (((device_fw_ver[0] - '0') & 0xF) << 8) | (((device_fw_ver[2] - '0') & 0xF) << 4) | (((device_fw_ver[3] - '0') & 0xF) << 0);
-	}
-	
-	if (upd_ver < min_ver)
-	{
-        printf("\n" "The target firmware %x.%x is lower than your factory firmware %x.%x", (upd_ver >> 8) & 0xF, upd_ver & 0xFF, (min_ver >> 8) & 0xF, min_ver & 0xFF);
-		printf("\n" "and reflashing is slightly more risky. Proceed? (X = Yes, R = No)\n");
-        while (1)
-        {
-            sceCtrlPeekBufferPositive(&pad_data, 1);
-            
-            /* filter out previous buttons  */
-            cur_buttons = pad_data.Buttons & ~prev_buttons;
-            prev_buttons = pad_data.Buttons;
-            
-            /* check for cross */
-            if (cur_buttons & PSP_CTRL_CROSS)
-            {
-                break;
-            }
-            
-            else if (cur_buttons & PSP_CTRL_RTRIGGER)
-            {
-                ErrorExit(5000, "Exiting in 5 seconds.\n");
-            }
-        }
-	}
-		
-	if (min_ver == 0x100 && model != 0)
-	{
-        printf("\n" "Your PSP's factory firmware is unknown and the target firmware %x.%x", (upd_ver >> 8) & 0xF, upd_ver & 0xFF);
-		printf("\n" "might be lower than it, therefore reflashing is slightly more risky.Proceed? (X = Yes, R = No)\n");
-        while (1)
-        {
-            sceCtrlPeekBufferPositive(&pad_data, 1);
-            
-            /* filter out previous buttons */
-            cur_buttons = pad_data.Buttons & ~prev_buttons;
-            prev_buttons = pad_data.Buttons;
-            
-            /* check for cross */
-            if (cur_buttons & PSP_CTRL_CROSS)
-            {
-                break;
-            }
-            
-            else if (cur_buttons & PSP_CTRL_RTRIGGER)
-            {
-                ErrorExit(5000, "Exiting in 5 seconds.\n");
-            }
-        }		
-	}
 	
     
     /* check for 09g or 07g, we treat this as a 04g */
