@@ -125,15 +125,8 @@ int ApplyFirmware(void)
 	
 	/* check for error */
 	if (res < 0)
-	{
-		/* check model */
-		if (sceKernelGetModel() != 0)
-		{
-			/* invalid error */
-			return -4;
-		}
-		
-		/* firmware 1.00 */
+	{		
+		/* set minimum firmware to 1.00, if unknown */
 		min_ver = 0x100;
 	}
 	else
@@ -144,13 +137,13 @@ int ApplyFirmware(void)
 	
 	/* set the result to 0 */
 	res = 0;
-		
+	
 	/* check if the updater is 620 and the model is 09g */
 	if (updater_ver == 0x620 && sceKernelGetModel() == 8)
 	{		
 		/* set result to 1 D: */
 		res = 1;
-	}
+	}	
 
 	/* do spoof! */
 	g_spoof_ver = updater_ver;
