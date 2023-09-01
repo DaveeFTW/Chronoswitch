@@ -10,7 +10,8 @@ The downgrader is "signed", and can be launched without having a custom firmware
 
 ## Changelog
 ### Version 7.2
-* Removed 'factory firmware limitation', which prevented certain PSPs from being downgradable at all or limited them from being downgraded to certain firmwares they theoretically support.
+* Replaced 'factory firmware limitation', which prevented certain PSPs from being downgradable at all or limited them from being downgraded to certain firmwares they theoretically support.
+* This fixes most cases where an IDXFFFFFFFF or CAAFFFFFCF7 error could appear.
 * Chronoswitch now detects your PSP's motherboard alongside its model and allows flashing all firmwares (5.00+) that are supported by it.
 * Removed support for downgrading 09g units below 6.30.
 ### Version 7.1
